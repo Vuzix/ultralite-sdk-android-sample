@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -230,7 +231,7 @@ public class MainActivity extends AppCompatActivity {
 
                         Bitmap bigImage = loadBitmap(getApplication(), R.drawable.ultralite_large_ori);
                         ultralite.getCanvas().drawBackground(bigImage, 0, 0);
-                        ultralite.getCanvas().commit();
+                        ultralite.getCanvas().commit(() -> Log.d("MainActivity", "full screen image commit is done!"));
                         pause(5000);
 
                         ultralite.releaseControl();
