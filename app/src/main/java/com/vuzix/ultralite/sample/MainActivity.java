@@ -266,7 +266,7 @@ public class MainActivity extends AppCompatActivity {
             ultralite.setLayout(Layout.SCROLL, 0, true);
 
             ultralite.scrollLayoutConfig(sliceHeight, 5, 500, false);
-            String teleprompterContents = getApplication().getString(R.string.gettysburg_address);
+            String teleprompterContents = getApplication().getString(R.string.scroll_layout_demo_text);
             TextToImageSlicer slicer = new TextToImageSlicer(teleprompterContents, sliceHeight, fontSize);
 
             while(slicer.hasMoreSlices()) {
