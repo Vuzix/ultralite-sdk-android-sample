@@ -27,11 +27,14 @@ import com.vuzix.ultralite.Anchor;
 import com.vuzix.ultralite.LVGLImage;
 import com.vuzix.ultralite.Layout;
 import com.vuzix.ultralite.TextAlignment;
+import com.vuzix.ultralite.TextToImageSlicer;
 import com.vuzix.ultralite.TextWrapMode;
 import com.vuzix.ultralite.UltraliteColor;
 import com.vuzix.ultralite.UltraliteSDK;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -141,7 +144,14 @@ public class MainActivity extends AppCompatActivity {
                         ultralite.getCanvas().commit();
                         pause(5000);
 
-                        ultralite.getCanvas().updateText(textId, "You can create image objects.");
+                        // This is where the teleprompter demo is rendered
+                        demoScrollLayout();
+
+                        ultralite.setLayout(Layout.CANVAS, 0, true);
+                        textId = ultralite.getCanvas().createText("You can create image objects.", TextAlignment.AUTO, UltraliteColor.WHITE, Anchor.TOP_CENTER, 0, 0, 640, -1, TextWrapMode.WRAP, true);
+                        if (textId == -1) {
+                            throw new Stop(true);
+                        }
 
                         LVGLImage rocket = loadLVGLImage(getApplication(), R.drawable.rocket);
                         int imageId = ultralite.getCanvas().createImage(rocket, Anchor.CENTER);
@@ -246,6 +256,54 @@ public class MainActivity extends AppCompatActivity {
                     }
                     running.postValue(false);
                 }).start();
+            }
+        }
+
+        private void demoScrollLayout() throws Stop {
+            final int sliceHeight = 48;
+            final int fontSize = 35;
+            AckWaiter ackWaiter = new AckWaiter(ultralite);
+            ultralite.setLayout(Layout.SCROLL, 0, true);
+
+            ultralite.scrollLayoutConfig(sliceHeight, 5, 500, false);
+            String teleprompterContents = getApplication().getString(R.string.gettysburg_address);
+            TextToImageSlicer slicer = new TextToImageSlicer(teleprompterContents, sliceHeight, fontSize);
+
+            while(slicer.hasMoreSlices()) {
+                ultralite.sendScrollImage(slicer.getNextSlice(), 0, true);
+                ackWaiter.waitForAck("Send line of text as image");
+                pause(2000);
+            }
+            pause(5000);
+        }
+
+        private static class AckWaiter {
+            private boolean replied;
+            private final UltraliteSDK ultralite;
+
+            public AckWaiter(UltraliteSDK ultralite) {
+                this.ultralite = ultralite;
+            }
+
+            public void waitForAck(String message) {
+                replied = false;
+                // Request the ack
+                ultralite.requestAcknowledgement( () -> {
+                    synchronized(message) {
+                        replied = true;
+                        message.notify();
+                    }
+                });
+                // Then wait
+                synchronized(message) {
+                    if (!replied) {
+                        try {
+                            message.wait();
+                        } catch (InterruptedException e) {
+                            Log.d(TAG, "Wait interrupted", e);
+                        }
+                    }
+                }
             }
         }
 

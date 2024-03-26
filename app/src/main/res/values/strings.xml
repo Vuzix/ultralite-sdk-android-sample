@@ -7,4 +7,8 @@
     <string name="glasses_connected">Glasses connected</string>
     <string name="run_demo">Run Demo</string>
     <string name="send_notification">Send Notification</string>
+    <string name="gettysburg_address" translatable="false">
+        The text can also scroll like a teleprompter with the scroll layout. This layout also
+        supports several configuration options such as font size and scroll speed.
+    </string>
 </resources>
