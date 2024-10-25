@@ -88,6 +88,27 @@
                 tools:ignore="ContentDescription" />
         </LinearLayout>
 
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:gravity="center_vertical"
+            tools:ignore="UseCompoundDrawables">
+
+            <TextView
+                android:text="@string/glasses_controlled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <ImageView
+                android:id="@+id/controlled"
+                android:src="@drawable/ic_close_24"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:ignore="ContentDescription" />
+        </LinearLayout>
+
+
         <Button
             android:id="@+id/run_demo"
             android:text="@string/run_demo"

@@ -5,6 +5,7 @@
     <string name="linked_to_glasses">Linked to glasses</string>
     <string name="name">Name:</string>
     <string name="glasses_connected">Glasses connected</string>
+    <string name="glasses_controlled">Glasses controlled by us</string>
     <string name="run_demo">Run Demo</string>
     <string name="send_notification">Send Notification</string>
     <string name="scroll_layout_demo_text" translatable="false">
