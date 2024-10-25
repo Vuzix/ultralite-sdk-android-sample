@@ -27,7 +27,7 @@ import com.vuzix.ultralite.Anchor;
 import com.vuzix.ultralite.LVGLImage;
 import com.vuzix.ultralite.Layout;
 import com.vuzix.ultralite.TextAlignment;
-import com.vuzix.ultralite.TextToImageSlicer;
+import com.vuzix.ultralite.utils.scroll.TextToImageSlicer;
 import com.vuzix.ultralite.TextWrapMode;
 import com.vuzix.ultralite.UltraliteColor;
 import com.vuzix.ultralite.UltraliteSDK;
@@ -264,13 +264,13 @@ public class MainActivity extends AppCompatActivity {
             final int fontSize = 35;
             AckWaiter ackWaiter = new AckWaiter(ultralite);
             ultralite.setLayout(Layout.SCROLL, 0, true);
-
-            ultralite.scrollLayoutConfig(sliceHeight, 5, 500, false);
+            UltraliteSDK.ScrollingTextView scrollingTextView = ultralite.getScrollingTextView();
+            scrollingTextView.scrollLayoutConfig(sliceHeight, 0, 5, 500, false);
             String teleprompterContents = getApplication().getString(R.string.scroll_layout_demo_text);
             TextToImageSlicer slicer = new TextToImageSlicer(teleprompterContents, sliceHeight, fontSize);
 
             while(slicer.hasMoreSlices()) {
-                ultralite.sendScrollImage(slicer.getNextSlice(), 0, true);
+                scrollingTextView.sendScrollImage(slicer.getNextSlice(), 0, true);
                 ackWaiter.waitForAck("Send line of text as image");
                 pause(2000);
             }
