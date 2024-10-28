@@ -26,7 +26,10 @@ import com.vuzix.ultralite.UltraliteSDK;
 /**
  * This class sets up a basic connection to the Z100 glasses using the ultralite SDK
  *
+ * The primary role of this class is to monitor the Z100 state, and handle the request and release
+ * of control.
  *
+ * It also demonstrates sending notifications.
  */
 public class MainActivity extends AppCompatActivity {
 
@@ -64,8 +67,11 @@ public class MainActivity extends AppCompatActivity {
             notificationButton.setEnabled(connected);
         });
 
-        ultralite.getControlledByMe().observe(this, linked -> {
-            controlledImageView.setImageResource(linked ? R.drawable.ic_check_24 : R.drawable.ic_close_24);
+        ultralite.getControlledByMe().observe(this, controlled -> {
+            // Always watch to see if you have lost control to another application. Our ViewModel
+            // observes this in controlledObserver, so this observer is just for the sake of
+            // our UI.
+            controlledImageView.setImageResource(controlled ? R.drawable.ic_check_24 : R.drawable.ic_close_24);
             nameTextView.setText(ultralite.getName());
         });
 
@@ -92,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
      * By default, the Android app may be listening to notifications from all system apps and
      * sending it to the glasses. But the user can control this behavior.
      *
-     * We can programatically send the same notification to the glasses that does NOT need to notify
+     * We can programmatically send the same notification to the glasses that does NOT need to notify
      * the rest of the phone. That's a great way to get content on the screen.
      *
      * If nothing has control, the notification shows full-screen.  But if something else has control
@@ -106,7 +112,6 @@ public class MainActivity extends AppCompatActivity {
         ultralite.sendNotification("Ultralite SDK Sample", "Hello from a sample app!",
                 loadLVGLImage(this, R.drawable.rocket, false));
     }
-
 
     /**
      * This ViewModel will hold our state during the demo.
@@ -137,14 +142,24 @@ public class MainActivity extends AppCompatActivity {
         // an application will have other logic that drives the UI, and the Z100 output will be
         // driven by that.
         private void runDemo() {
+            if (haveControlOfGlasses) {
+                startDemoThread();
+            } else {
+                ultralite.requestControl();
+            }
+        }
+
+        private void startDemoThread() {
             new Thread(() -> {
-                running.postValue(true);
-                // Always request control before any drawing starts
-                haveControlOfGlasses = ultralite.requestControl();
+                // Always be sure we have control before any drawing starts
                 if(haveControlOfGlasses) {
+                    running.postValue(true);
                     try {
                         DemoCanvasLayout.runDemo(getApplication(), this, ultralite);
-                        DemoScrollLayout.runDemo(getApplication(), this, ultralite);
+                        DemoScrollAutoScroller.runDemo(getApplication(), this, ultralite);
+                        DemoScrollLiveText.runDemo(getApplication(), this, ultralite);
+                        DemoScrollNative.runDemo(getApplication(), this, ultralite);
+
                         // Always release control when finished drawing to the glasses
                         ultralite.releaseControl();
                         ultralite.sendNotification("Demo Success", "The demo is over");
@@ -178,10 +193,14 @@ public class MainActivity extends AppCompatActivity {
         }
 
         private final Observer<Boolean> controlledObserver = controlled -> {
-            // If we lose control of the glasses we stop the demo. Other apps may continue
-            // running without the glasses UI and wait for it to reconnect to begin streaming to
-            // it again.
-            if (!controlled) {
+            if (controlled) {
+                // We wait to start the demo until the SDK confirms we have received control.
+                haveControlOfGlasses = true;
+                startDemoThread();
+            } else {
+                // If we later lose control of the glasses we stop the demo. (Your app may choose to
+                // continue running without the glasses UI and wait for them to reconnect to begin,
+                // streaming to them again.).
                 haveControlOfGlasses = false;
             }
         };
@@ -202,8 +221,8 @@ public class MainActivity extends AppCompatActivity {
      * @param context Application context
      * @param resource Resource ID of a bitmap
      * @param singleBit True to render as single-bit (black and white) only. This is the smallest
-     *                  and fastest way to send images.
-     * @return LVGLImage in 1-bit color space at the original bitmap dimensions
+     *                  and fastest way to send images. False for 2-bit per pixel.
+     * @return LVGLImage at the original bitmap dimensions
      */
     static LVGLImage loadLVGLImage(Context context, int resource, boolean singleBit) {
         BitmapDrawable drawable = (BitmapDrawable) ResourcesCompat.getDrawable(

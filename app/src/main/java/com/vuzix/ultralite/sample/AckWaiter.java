@@ -19,19 +19,22 @@ import com.vuzix.ultralite.UltraliteSDK;
 class AckWaiter {
     private boolean replied;
     private final UltraliteSDK ultralite;
+    private String message;
 
     public AckWaiter(UltraliteSDK ultralite) {
         this.ultralite = ultralite;
     }
 
     /**
-     * Simply call this method and our thread will become idle until the glasses reply that this
-     * message has been received.
+     * Simply call this method and the current thread will become idle until the glasses reply that this
+     * message has been received. This is useful in this demo scenario since we have a worker thread
+     * that is sequentially sending each screen.
      *
      * @param message A unique String to identify this wait condition
      */
     public void waitForAck(String message) {
         replied = false;
+        this.message = message;
         // Request the ack and provide a callback method
         ultralite.requestAcknowledgement( () -> {
             synchronized(this) {
@@ -46,7 +49,7 @@ class AckWaiter {
                 try {
                     this.wait();
                 } catch (InterruptedException e) {
-                    Log.d(MainActivity.TAG, "Wait interrupted", e);
+                    Log.i(MainActivity.TAG, "Wait for \"" + message + "\" interrupted ", e);
                     break;
                 }
             }

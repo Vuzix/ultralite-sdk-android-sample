@@ -8,8 +8,28 @@
     <string name="glasses_controlled">Glasses controlled by us</string>
     <string name="run_demo">Run Demo</string>
     <string name="send_notification">Send Notification</string>
-    <string name="scroll_layout_demo_text" translatable="false">
+    <string name="scroll_layout_demo_text">
         The text can also scroll like a teleprompter with the scroll layout. This layout also
         supports several configuration options such as font size and scroll speed.
     </string>
+    <string-array name="live_text_demo_text_1">
+        <item>This is some text that simulates data coming</item>
+        <item>from a</item>
+        <item>speech recognition engine.</item>
+        <item>It will get data in little chunks and</item>
+        <item>keep appending it as we get more</item>
+        <item>and more data.</item>
+    </string-array>
+    <string-array name="live_text_demo_text_2">
+        <item>Then after a break, we might start over with a new</item>
+        <item>sentence, and the recognizer will stop giving us</item>
+        <item>original text, and just give us this new stuff.</item>
+        <item>That\'s fine, too.</item>
+    </string-array>
+    <string name="scroll_layout_native_text">
+        We can have complete control over the scroll layout if we make our own class to send the
+        data to the glasses. This class just sends images full of text and graphics to the screen
+        and scrolls them as we see fit.
+    </string>
+
 </resources>
