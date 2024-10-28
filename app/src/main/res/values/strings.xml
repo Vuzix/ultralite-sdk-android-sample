@@ -32,4 +32,8 @@
         and scrolls them as we see fit.
     </string>
 
+    <string name="tap_once">Tap the glasses to continue</string>
+    <string name="tapped_1">Detected single-tap</string>
+    <string name="tap_twice">Double-tap the glasses</string>
+    <string name="tapped_2">Detected double-tap</string>
 </resources>

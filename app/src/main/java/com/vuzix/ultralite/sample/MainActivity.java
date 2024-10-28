@@ -159,6 +159,7 @@ public class MainActivity extends AppCompatActivity {
                         DemoScrollAutoScroller.runDemo(getApplication(), this, ultralite);
                         DemoScrollLiveText.runDemo(getApplication(), this, ultralite);
                         DemoScrollNative.runDemo(getApplication(), this, ultralite);
+                        DemoTapInput.runDemo(getApplication(), this, ultralite);
 
                         // Always release control when finished drawing to the glasses
                         ultralite.releaseControl();
